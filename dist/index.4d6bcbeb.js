@@ -532,63 +532,112 @@ function hmrAcceptRun(bundle, id) {
 }
 
 },{}],"gLLPy":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _resetCss = require("./reset.css");
 var _globalCss = require("./global.css");
 var _app1Js = require("./app1.js");
+var _app1JsDefault = parcelHelpers.interopDefault(_app1Js);
 var _app2Js = require("./app2.js");
+var _app2JsDefault = parcelHelpers.interopDefault(_app2Js);
 var _app3Js = require("./app3.js");
 var _app4Js = require("./app4.js");
+(0, _app1JsDefault.default).init("#app1");
+(0, _app2JsDefault.default).init("#app2");
 
-},{"./reset.css":"8XPx9","./global.css":"11axS","./app1.js":"gMhIk","./app2.js":"alK4Z","./app3.js":"264pe","./app4.js":"6ZENx"}],"8XPx9":[function() {},{}],"11axS":[function() {},{}],"gMhIk":[function(require,module,exports) {
+},{"./reset.css":"8XPx9","./global.css":"11axS","./app1.js":"gMhIk","./app3.js":"264pe","./app4.js":"6ZENx","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s","./app2.js":"alK4Z"}],"8XPx9":[function() {},{}],"11axS":[function() {},{}],"gMhIk":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
 var _app1Css = require("./app1.css");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
-const html = `
-        <section id="app1">
-            <div class="output">
-                <span class="number">100</span>
-            </div>
-            <div class="actions">
-                <button class="add1">+1</button>
-                <button class="minus1">-1</button>
-                <button class="mul2">*2</button>
-                <button class="divide2">÷2</button>
-            </div>
-        </section>
-`;
-const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
-const $button1 = (0, _jqueryDefault.default)(".add1");
-const $button2 = (0, _jqueryDefault.default)(".minus1");
-const $button3 = (0, _jqueryDefault.default)(".mul2");
-const $button4 = (0, _jqueryDefault.default)(".divide2");
-const $number = (0, _jqueryDefault.default)(".number");
-const n = localStorage.getItem("n");
-$number.text(n || 100);
-$button1.on("click", ()=>{
-    let n = parseFloat($number.text());
-    n += 1;
-    localStorage.setItem("n", n);
-    $number.text(n);
-});
-$button2.on("click", ()=>{
-    let n = parseInt($number.text());
-    n -= 1;
-    localStorage.setItem("n", n);
-    $number.text(n);
-});
-$button3.on("click", ()=>{
-    let n = parseInt($number.text());
-    n *= 2;
-    localStorage.setItem("n", n);
-    $number.text(n);
-});
-$button4.on("click", ()=>{
-    let n = parseInt($number.text());
-    n /= 2;
-    localStorage.setItem("n", n);
-    $number.text(n);
-});
+const eventBus = (0, _jqueryDefault.default)(window);
+// 数据相关都放到m
+const m = {
+    data: {
+        n: parseInt(localStorage.getItem("n"))
+    },
+    create () {},
+    delete () {},
+    update (data) {
+        Object.assign(m.data, data);
+        eventBus.trigger("m:updated");
+        localStorage.setItem("n", m.data.n);
+    },
+    get () {}
+};
+// 视图相关都放到v
+const v = {
+    el: null,
+    html: `
+  <div>
+    <div class="output">
+      <span id="number">{{n}}</span>
+    </div>
+    <div class="actions">
+      <button id="add1">+1</button>
+      <button id="minus1">-1</button>
+      <button id="mul2">*2</button>
+      <button id="divide2">÷2</button>
+    </div>
+  </div>
+`,
+    init (container) {
+        v.el = (0, _jqueryDefault.default)(container);
+    },
+    render (n) {
+        if (v.el.children.length !== 0) v.el.empty();
+        (0, _jqueryDefault.default)(v.html.replace("{{n}}", n)).appendTo(v.el);
+    }
+};
+// 其他都c
+const c = {
+    init (container) {
+        v.init(container);
+        v.render(m.data.n) // view = render(data)
+        ;
+        c.autoBindEvents();
+        eventBus.on("m:updated", ()=>{
+            console.log("here");
+            v.render(m.data.n);
+        });
+    },
+    events: {
+        "click #add1": "add",
+        "click #minus1": "minus",
+        "click #mul2": "mul",
+        "click #divide2": "div"
+    },
+    add () {
+        m.update({
+            n: m.data.n + 1
+        });
+    },
+    minus () {
+        m.update({
+            n: m.data.n - 1
+        });
+    },
+    mul () {
+        m.update({
+            n: m.data.n * 2
+        });
+    },
+    div () {
+        m.update({
+            n: m.data.n / 2
+        });
+    },
+    autoBindEvents () {
+        for(let key in c.events){
+            const value = c[c.events[key]];
+            const spaceIndex = key.indexOf(" ");
+            const part1 = key.slice(0, spaceIndex);
+            const part2 = key.slice(spaceIndex + 1);
+            v.el.on(part1, part2, value);
+        }
+    }
+};
+exports.default = c;
 
 },{"./app1.css":"7FkZd","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"7FkZd":[function() {},{}],"hgMhh":[function(require,module,exports) {
 /*!
@@ -7379,7 +7428,51 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"alK4Z":[function(require,module,exports) {
+},{}],"264pe":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _jquery = require("jquery");
+var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+var _app3Css = require("./app3.css");
+const html = `
+    <section id="app3">
+      <div class="square"></div>
+    </section>
+`;
+const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
+const $square = (0, _jqueryDefault.default)("#app3 .square");
+const localKey = "app3.active";
+// yes no undefined
+const active = localStorage.getItem(localKey) === "yes";
+$square.toggleClass("active", active);
+$square.on("click", ()=>{
+    if ($square.hasClass("active")) {
+        $square.removeClass("active");
+        localStorage.setItem(localKey, "no");
+    } else {
+        $square.addClass("active");
+        localStorage.setItem("app3.active", "yes");
+    }
+});
+
+},{"jquery":"hgMhh","./app3.css":"iOgrn","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"iOgrn":[function() {},{}],"6ZENx":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _app4Css = require("./app4.css");
+var _jquery = require("jquery");
+var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+const html = `
+        <section id="app4">
+            <div class="circle"></div>
+        </section>
+`;
+const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
+const $circle = (0, _jqueryDefault.default)("#app4 .circle");
+$circle.on("mouseenter", ()=>{
+    $circle.addClass("action");
+}).on("mouseleave", ()=>{
+    $circle.removeClass("action");
+});
+
+},{"./app4.css":"jZ1KW","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"jZ1KW":[function() {},{}],"alK4Z":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _app2Css = require("./app2.css");
 var _jquery = require("jquery");
@@ -7410,50 +7503,6 @@ $tabBar.on("click", "li", (e)=>{
 });
 $tabBar.children().eq(index).trigger("click");
 
-},{"./app2.css":"8RnuD","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"8RnuD":[function() {},{}],"264pe":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _jquery = require("jquery");
-var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
-var _app3Css = require("./app3.css");
-const html = `
-    <section id="app3">
-      <div class="square"></div>
-    </section>
-`;
-const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
-const $square = (0, _jqueryDefault.default)("#app3 .square");
-const localKey = "app3.active";
-// yes no undefined
-const active = localStorage.getItem(localKey) === "yes";
-$square.toggleClass("active", active);
-$square.on("click", ()=>{
-    if ($square.hasClass("active")) {
-        $square.removeClass("active");
-        localStorage.setItem(localKey, "no");
-    } else {
-        $square.addClass("active");
-        localStorage.setItem("app3.active", "yes");
-    }
-});
-
-},{"./app3.css":"iOgrn","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"iOgrn":[function() {},{}],"6ZENx":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _app4Css = require("./app4.css");
-var _jquery = require("jquery");
-var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
-const html = `
-        <section id="app4">
-            <div class="circle"></div>
-        </section>
-`;
-const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
-const $circle = (0, _jqueryDefault.default)("#app4 .circle");
-$circle.on("mouseenter", ()=>{
-    $circle.addClass("action");
-}).on("mouseleave", ()=>{
-    $circle.removeClass("action");
-});
-
-},{"./app4.css":"jZ1KW","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"jZ1KW":[function() {},{}]},["zZ7bZ","gLLPy"], "gLLPy", "parcelRequire42e6")
+},{"./app2.css":"8RnuD","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"8RnuD":[function() {},{}]},["zZ7bZ","gLLPy"], "gLLPy", "parcelRequire42e6")
 
 //# sourceMappingURL=index.4d6bcbeb.js.map
