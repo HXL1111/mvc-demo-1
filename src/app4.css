@@ -2,7 +2,7 @@
 #app4 > .circle {
   border: 1px solid red;
   width: 50vw;
-  height: 50vh;
+  height: 50vw;
   border-radius: 50%;
 }
 @keyframes change {

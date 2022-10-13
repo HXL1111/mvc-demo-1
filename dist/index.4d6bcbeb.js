@@ -544,6 +544,20 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _app1Css = require("./app1.css");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+const html = `
+        <section id="app1">
+            <div class="output">
+                <span class="number">100</span>
+            </div>
+            <div class="actions">
+                <button class="add1">+1</button>
+                <button class="minus1">-1</button>
+                <button class="mul2">*2</button>
+                <button class="divide2">÷2</button>
+            </div>
+        </section>
+`;
+const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
 const $button1 = (0, _jqueryDefault.default)(".add1");
 const $button2 = (0, _jqueryDefault.default)(".minus1");
 const $button3 = (0, _jqueryDefault.default)(".mul2");
@@ -552,7 +566,7 @@ const $number = (0, _jqueryDefault.default)(".number");
 const n = localStorage.getItem("n");
 $number.text(n || 100);
 $button1.on("click", ()=>{
-    let n = parseInt($number.text());
+    let n = parseFloat($number.text());
     n += 1;
     localStorage.setItem("n", n);
     $number.text(n);
@@ -7370,24 +7384,56 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _app2Css = require("./app2.css");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+const html = `
+        <section id="app2">
+            <ol class="tab-bar">
+                <li >1</li>
+                <li>2</li>
+            </ol>
+            <ol class="tab-content">
+                <li>内容1</li>
+                <li>内容2</li>
+            </ol>
+        </section>
+`;
+const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
 const $tabBar = (0, _jqueryDefault.default)("#app2 .tab-bar");
 const $tabContent = (0, _jqueryDefault.default)("#app2 .tab-content");
+const localKey = "app2.index";
+const index = localStorage.getItem(localKey) ?? 0;
 $tabBar.on("click", "li", (e)=>{
     const $li = (0, _jqueryDefault.default)(e.currentTarget);
     const index = $li.index();
     $tabBar.children().eq(index).addClass("selected").siblings().removeClass("selected");
+    localStorage.setItem(localKey, index);
     $tabContent.children().eq(index).addClass("action").siblings().removeClass("action");
 });
-$tabBar.children().eq(0).trigger("click");
+$tabBar.children().eq(index).trigger("click");
 
 },{"./app2.css":"8RnuD","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"8RnuD":[function() {},{}],"264pe":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _app3Css = require("./app3.css");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+var _app3Css = require("./app3.css");
+const html = `
+    <section id="app3">
+      <div class="square"></div>
+    </section>
+`;
+const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
 const $square = (0, _jqueryDefault.default)("#app3 .square");
+const localKey = "app3.active";
+// yes no undefined
+const active = localStorage.getItem(localKey) === "yes";
+$square.toggleClass("active", active);
 $square.on("click", ()=>{
-    $square.toggleClass("action");
+    if ($square.hasClass("active")) {
+        $square.removeClass("active");
+        localStorage.setItem(localKey, "no");
+    } else {
+        $square.addClass("active");
+        localStorage.setItem("app3.active", "yes");
+    }
 });
 
 },{"./app3.css":"iOgrn","jquery":"hgMhh","@parcel/transformer-js/src/esmodule-helpers.js":"76q2s"}],"iOgrn":[function() {},{}],"6ZENx":[function(require,module,exports) {
@@ -7395,6 +7441,12 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _app4Css = require("./app4.css");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+const html = `
+        <section id="app4">
+            <div class="circle"></div>
+        </section>
+`;
+const $element = (0, _jqueryDefault.default)(html).appendTo((0, _jqueryDefault.default)("body>.page"));
 const $circle = (0, _jqueryDefault.default)("#app4 .circle");
 $circle.on("mouseenter", ()=>{
     $circle.addClass("action");
